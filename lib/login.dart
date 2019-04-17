@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:mysql1/mysql1.dart' as mysql;
+import 'package:shared_preferences/shared_preferences.dart';
 
 class LoginPage extends StatelessWidget {
   @override
@@ -25,6 +27,7 @@ class LoginPage extends StatelessWidget {
 }
 
 String currentProms = 'li218';
+bool rememberMe = false;
 
 class LoginForm extends StatefulWidget {
   @override
@@ -38,76 +41,157 @@ class LoginFormState extends State<LoginForm> {
 
   final _formKey = GlobalKey<FormState>();
 
+  final bucqueController = TextEditingController();
+
   @override
   Widget build(BuildContext context) {
     return Form(
-      key: _formKey,
-      child: Container(
-        width: 250,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: <Widget>[
-            Text(
-              'Bucque',
-              style: TextStyle(
-                fontSize: 20,
-              )
-            ),
-            TextFormField(
-              style: TextStyle(fontSize: 15),
-              validator: (value) {
-                if(value.isEmpty) {
-                  return 'Entrez votre bucque';
-                }
-              },
-            ),
+        key: _formKey,
+        child: Container(
+            width: 250,
+            child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  Text(
+                      'Bucque',
+                      style: TextStyle(
+                        fontSize: 20,
+                      )
+                  ),
+                  // TODO: Implement "remember me" feature
+                  /*FutureBuilder<SharedPreferences>(
+              future: SharedPreferences.getInstance(),
+              builder: (BuildContext context, AsyncSnapshot<SharedPreferences> snapshot){
+                switch(snapshot.connectionState){
 
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: 10)
-            ),
-
-            Text(
-                'Prom\'s',
-                style: TextStyle(
-                  fontSize: 20,
-                )
-            ),
-            DropdownButtonFormField<String>(
-              value: currentProms,
-              onChanged: (String newValue){
-                setState((){
-                  currentProms = newValue;
-                });
-              },
-              items: <String>['li217', 'li218', 'li218+1'].map<DropdownMenuItem<String>>((String value) {
-                return DropdownMenuItem<String>(
-                  value: value,
-                  child: Text(value),
-                );
-              }).toList(),
-              validator: (value) {
-                if(value.isEmpty) {
-                  return 'Choisissez votre prom\'s';
-                }
-              }
-            ),
-            Padding(padding: EdgeInsets.symmetric(vertical: 10)),
-            Center(
-                child: RaisedButton(
-                  onPressed: () {
-                    if(_formKey.currentState.validate()){
-                      Scaffold.of(context).showSnackBar(SnackBar(content: Text('Authentification en cours')));
-                      //Todo: Make request to server
+                  case ConnectionState.none:
+                    break;
+                  case ConnectionState.waiting:
+                    break;
+                  case ConnectionState.active:
+                    break;
+                  case ConnectionState.done:
+                    SharedPreferences sharedPrefs = snapshot.data;
+                    String initialBucque = "";
+                    if(sharedPrefs.get('remember')){
+                      initialBucque = sharedPrefs.get('bucque');
                     }
-                  },
-                  child: Text('M\'identifier'),
-                  color: Colors.green,
-                  textColor: Colors.white,
-                )
+                    return TextFormField(
+                      style: TextStyle(fontSize: 15),
+                      controller: bucqueController,
+                      initialValue: initialBucque,
+                      validator: (value) {
+                        if(value.isEmpty) {
+                          return 'Entrez votre bucque';
+                        }
+                      },
+                    );
+                }
+              },
+            ),*/
+                  TextFormField(
+                    style: TextStyle(fontSize: 15),
+                    controller: bucqueController,
+                    validator: (value) {
+                      if (value.isEmpty) {
+                        return 'Entrez votre bucque';
+                      }
+                    },
+                  ),
+
+                  Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 10)
+                  ),
+
+                  Text(
+                      'Prom\'s',
+                      style: TextStyle(
+                        fontSize: 20,
+                      )
+                  ),
+                  DropdownButtonFormField<String>(
+                      value: currentProms,
+                      onChanged: (String newValue) {
+                        setState(() {
+                          currentProms = newValue;
+                        });
+                      },
+                      items: <String>['li217', 'li218', 'li218+1'].map<
+                          DropdownMenuItem<String>>((String value) {
+                        return DropdownMenuItem<String>(
+                          value: value,
+                          child: Text(value),
+                        );
+                      }).toList(),
+                      validator: (value) {
+                        if (value.isEmpty) {
+                          return 'Choisissez votre prom\'s';
+                        }
+                      }
+                  ),
+                  Padding(padding: EdgeInsets.symmetric(vertical: 10)),
+                  Center(
+                    child: Row(
+                        children: <Widget>[
+                          Switch(
+                            value: rememberMe,
+                            onChanged: (value) {
+                              setState(() {
+                                rememberMe = value;
+                              });
+                            },
+                          ),
+                          Text(
+                              'Se souvenir de moi'
+                          )
+                        ]
+                    ),
+                  ),
+                  Padding(padding: EdgeInsets.symmetric(vertical: 10)),
+                  Center(
+                      child: RaisedButton(
+                        onPressed: () async {
+                          if (_formKey.currentState.validate()) {
+                            Scaffold.of(context).showSnackBar(SnackBar(
+                                content: Text('Authentification en cours')));
+
+                            var settings = new mysql.ConnectionSettings(
+                                host: '91.121.135.77',
+                                port: 3306,
+                                user: 'vestiaires_2k19',
+                                password: 'emL3xC7jKCx7Nb5n',
+                                db: 'vestiaires_2k19'
+                            );
+                            var conn = await mysql.MySqlConnection.connect(
+                                settings);
+                            var results = await conn.query(
+                                "SELECT * FROM users WHERE bucque = ? AND proms = ?",
+                                [bucqueController.text, currentProms]);
+                            SharedPreferences.setMockInitialValues({});
+                            SharedPreferences sharedPrefs = await SharedPreferences
+                                .getInstance();
+                            if (results.length > 0) {
+                              await sharedPrefs.setBool("remember", rememberMe);
+                              if (rememberMe)
+                                await sharedPrefs.setString("bucque", bucqueController.text);
+                              for (var row in results) {
+                                print(row[0]);
+                                // TODO: User authenticated => Change page
+                              }
+                            }
+                            else {
+                              print("Unknown user");
+                            }
+                          }
+                        },
+                        child: Text('M\'identifier'),
+                        color: Colors.green,
+                        textColor: Colors.white,
+                      )
+                  )
+                ]
             )
-          ]
         )
-      )
     );
   }
 
