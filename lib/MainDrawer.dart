@@ -3,6 +3,10 @@ import 'package:app_vestiaires/components/ManualCode.dart';
 import 'package:app_vestiaires/components/QRCode.dart';
 import 'package:flutter/material.dart';
 
+/*
+  This is the MainDrawer class
+  It provides a drawer to access QRCode, BarCode and ManualCode links
+ */
 class MainDrawer extends StatefulWidget {
 
   @override
