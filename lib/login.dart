@@ -1,3 +1,4 @@
+import 'package:app_vestiaires/MainMenu.dart';
 import 'package:flutter/material.dart';
 import 'package:mysql1/mysql1.dart' as mysql;
 import 'package:shared_preferences/shared_preferences.dart';
@@ -41,10 +42,35 @@ class LoginFormState extends State<LoginForm> {
 
   final _formKey = GlobalKey<FormState>();
 
-  final bucqueController = TextEditingController();
+  TextEditingController bucqueController;
+  String recoveredBucque;
+
+  @override
+  void initState(){
+    super.initState();
+    _recoverBucque();
+  }
+
+  Future<String> _recoverBucque() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance().then((sp) {
+      bool remember = sp.getBool("remember");
+      if(remember == null)
+        remember = false;
+      this.setState(() {
+        if(remember){
+          recoveredBucque = sp.getString("bucque");
+        }
+        else
+          recoveredBucque = "";
+      });
+    });
+
+    return "Success";
+  }
 
   @override
   Widget build(BuildContext context) {
+    bucqueController = TextEditingController(text: recoveredBucque);
     return Form(
         key: _formKey,
         child: Container(
@@ -152,8 +178,7 @@ class LoginFormState extends State<LoginForm> {
                       child: RaisedButton(
                         onPressed: () async {
                           if (_formKey.currentState.validate()) {
-                            Scaffold.of(context).showSnackBar(SnackBar(
-                                content: Text('Authentification en cours')));
+                            Scaffold.of(context).showSnackBar(SnackBar(content: Text('Authentification en cours')));
 
                             var settings = new mysql.ConnectionSettings(
                                 host: '91.121.135.77',
@@ -167,20 +192,19 @@ class LoginFormState extends State<LoginForm> {
                             var results = await conn.query(
                                 "SELECT * FROM users WHERE bucque = ? AND proms = ?",
                                 [bucqueController.text, currentProms]);
-                            SharedPreferences.setMockInitialValues({});
                             SharedPreferences sharedPrefs = await SharedPreferences
                                 .getInstance();
                             if (results.length > 0) {
                               await sharedPrefs.setBool("remember", rememberMe);
                               if (rememberMe)
                                 await sharedPrefs.setString("bucque", bucqueController.text);
-                              for (var row in results) {
-                                print(row[0]);
-                                // TODO: User authenticated => Change page
-                              }
+                              _registerUserData(bucqueController.text, currentProms);
+                              Scaffold.of(context).hideCurrentSnackBar();
+                              Scaffold.of(context).showSnackBar(SnackBar(content: Text('Vous êtes authentifié !'), backgroundColor: Colors.green));
+                              Navigator.push(context, MaterialPageRoute(builder: (context) => MainMenu()));
                             }
                             else {
-                              print("Unknown user");
+                              Scaffold.of(context).showSnackBar(SnackBar(content: Text('Authentification impossible'), backgroundColor: Colors.red));
                             }
                           }
                         },
@@ -193,6 +217,12 @@ class LoginFormState extends State<LoginForm> {
             )
         )
     );
+  }
+
+  _registerUserData(String bucque, String proms) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.setString("session_bucque", bucque);
+    prefs.setString("session_proms", proms);
   }
 
 }
