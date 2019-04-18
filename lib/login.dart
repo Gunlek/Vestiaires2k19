@@ -84,37 +84,6 @@ class LoginFormState extends State<LoginForm> {
                         fontSize: 20,
                       )
                   ),
-                  // TODO: Implement "remember me" feature
-                  /*FutureBuilder<SharedPreferences>(
-              future: SharedPreferences.getInstance(),
-              builder: (BuildContext context, AsyncSnapshot<SharedPreferences> snapshot){
-                switch(snapshot.connectionState){
-
-                  case ConnectionState.none:
-                    break;
-                  case ConnectionState.waiting:
-                    break;
-                  case ConnectionState.active:
-                    break;
-                  case ConnectionState.done:
-                    SharedPreferences sharedPrefs = snapshot.data;
-                    String initialBucque = "";
-                    if(sharedPrefs.get('remember')){
-                      initialBucque = sharedPrefs.get('bucque');
-                    }
-                    return TextFormField(
-                      style: TextStyle(fontSize: 15),
-                      controller: bucqueController,
-                      initialValue: initialBucque,
-                      validator: (value) {
-                        if(value.isEmpty) {
-                          return 'Entrez votre bucque';
-                        }
-                      },
-                    );
-                }
-              },
-            ),*/
                   TextFormField(
                     style: TextStyle(fontSize: 15),
                     controller: bucqueController,
@@ -187,13 +156,9 @@ class LoginFormState extends State<LoginForm> {
                                 password: 'emL3xC7jKCx7Nb5n',
                                 db: 'vestiaires_2k19'
                             );
-                            var conn = await mysql.MySqlConnection.connect(
-                                settings);
-                            var results = await conn.query(
-                                "SELECT * FROM users WHERE bucque = ? AND proms = ?",
-                                [bucqueController.text, currentProms]);
-                            SharedPreferences sharedPrefs = await SharedPreferences
-                                .getInstance();
+                            var conn = await mysql.MySqlConnection.connect(settings);
+                            var results = await conn.query("SELECT * FROM users WHERE bucque = ? AND proms = ?", [bucqueController.text, currentProms]);
+                            SharedPreferences sharedPrefs = await SharedPreferences.getInstance();
                             if (results.length > 0) {
                               await sharedPrefs.setBool("remember", rememberMe);
                               if (rememberMe)
