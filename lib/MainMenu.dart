@@ -1,6 +1,11 @@
 import 'package:app_vestiaires/MainDrawer.dart';
+import 'package:app_vestiaires/components/ViewCloakroom.dart';
 import 'package:flutter/material.dart';
 
+/*
+  This is the class for the main menu
+  It handles cloakroom listing, providing a menu to access cloakrooms
+ */
 class MainMenu extends StatelessWidget {
 
   @override
@@ -29,34 +34,34 @@ class Menu extends StatelessWidget {
       mainAxisSpacing: 10.0,
       padding: EdgeInsets.all(20.0),
       children: <Widget>[
-        _generateLockerButton('red'),
-        _generateLockerButton('green'),
-        _generateLockerButton('blue'),
-        _generateLockerButton('yellow')
+        _generateLockerButton(context, Cloakroom.RED),
+        _generateLockerButton(context, Cloakroom.GREEN),
+        _generateLockerButton(context, Cloakroom.BLUE),
+        _generateLockerButton(context, Cloakroom.YELLOW)
       ]
     );
   }
 
-  Widget _generateLockerButton(String lockerColor){
+  Widget _generateLockerButton(BuildContext context, Cloakroom cloakroom){
     String btnText = "";
     Color btnColor = Colors.black;
-    switch(lockerColor){
-      case 'red':
+    switch(cloakroom){
+      case Cloakroom.RED:
         btnText = "Vestiaire rouge";
         btnColor = Colors.red;
         break;
 
-      case 'green':
+      case Cloakroom.GREEN:
         btnText = "Vestiaire vert";
         btnColor = Colors.green;
         break;
 
-      case 'blue':
+      case Cloakroom.BLUE:
         btnText = "Vestiaire bleu";
         btnColor = Colors.blue;
         break;
 
-      case 'yellow':
+      case Cloakroom.YELLOW:
         btnText = "Vestiaire jaune";
         btnColor = Colors.amber;
         break;
@@ -65,38 +70,24 @@ class Menu extends StatelessWidget {
     return Container(
       width: double.infinity,
       color: Colors.black12,
-      child: Column(
+      child: FlatButton(
+        onPressed: () {
+          Navigator.push(context, MaterialPageRoute(builder: (context) => ViewCloakroom(cloakroom)));
+        },
+        child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             IconButton(
               icon: Icon(Icons.arrow_forward),
               tooltip: btnText,
               onPressed: () {
-                _openLocker(lockerColor);
+                Navigator.push(context, MaterialPageRoute(builder: (context) => ViewCloakroom(cloakroom)));
               },
             ),
             Text(btnText, style: TextStyle(color: btnColor))
           ]
+        )
       )
     );
-
-    /*return Container(
-        width: double.infinity,
-        color: Colors.black12,
-        child: FlatButton(
-            child: Column(
-                children: <Widget>[
-                  Text(btnText, style: TextStyle(backgroundColor: Colors.amber))
-                ]
-            ),
-            onPressed: () {
-              _openLocker(lockerColor);
-            }
-        )
-    );*/
-  }
-
-  _openLocker(String lockerColor){
-
   }
 }
