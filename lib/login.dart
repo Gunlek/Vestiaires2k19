@@ -57,6 +57,7 @@ class LoginFormState extends State<LoginForm> {
       if(remember == null)
         remember = false;
       this.setState(() {
+        rememberMe = remember;
         if(remember){
           recoveredBucque = sp.getString("bucque");
         }
