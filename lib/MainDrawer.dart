@@ -1,6 +1,4 @@
-import 'package:app_vestiaires/components/BarCode.dart';
-import 'package:app_vestiaires/components/ManualCode.dart';
-import 'package:app_vestiaires/components/QRCode.dart';
+import 'package:app_vestiaires/components/BelongingsAdder.dart';
 import 'package:flutter/material.dart';
 
 /*
@@ -27,37 +25,17 @@ class MainDrawerState extends State<MainDrawer> {
               width: 150
           ),
           FlatButton(
-            child: Text('Scanner un QR code'),
+            child: Text('Ajouter dans un vestiaire'),
             onPressed: () {
-              _openQRReader(context);
+              _openBelongingsAdder(context);
             }
           ),
-          FlatButton(
-            child: Text('Scanner un code barre'),
-            onPressed: () {
-              _openBarCodeReader(context);
-            }
-          ),
-          FlatButton(
-              child: Text('Entrer un code manuellement'),
-              onPressed: () {
-                _openManualCode(context);
-              }
-          )
         ]
     );
   }
 
-  _openQRReader(context) {
-    Navigator.push(context, MaterialPageRoute(builder: (context) => QRCode()));
-  }
-
-  _openBarCodeReader(context) {
-    Navigator.push(context, MaterialPageRoute(builder: (context) => BarCode()));
-  }
-
-  _openManualCode(context) {
-    Navigator.push(context, MaterialPageRoute(builder: (context) => ManualCode()));
+  _openBelongingsAdder(context) {
+    Navigator.push(context, MaterialPageRoute(builder: (context) => BelongingsAdder()));
   }
 
 }
