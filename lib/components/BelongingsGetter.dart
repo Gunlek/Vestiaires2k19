@@ -44,19 +44,13 @@ class BelongingsGetterFormState extends State<BelongingsGetterForm> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
             Text('Code:'),
-            FutureBuilder(
-              future: _codeString,
-              builder: (BuildContext context, AsyncSnapshot<String> snapshot){
-                this.CodeController.text = snapshot.data != null ? snapshot.data : '';
-                return TextFormField(
-                  keyboardType: TextInputType.number,
-                  controller: CodeController,
-                  validator: (value){
-                    if(value.isEmpty)
-                      return "Vous devez scanner un code pour récupérer l'objet";
-                  }
-                );
-              }
+            TextFormField(
+                keyboardType: TextInputType.number,
+                controller: CodeController,
+                validator: (value){
+                  if(value.isEmpty)
+                    return "Vous devez scanner un code pour récupérer l'objet";
+                }
             ),
             RaisedButton(
               color: Colors.blue,

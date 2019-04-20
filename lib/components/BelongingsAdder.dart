@@ -47,15 +47,13 @@ class BelongingsAdderFormState extends State<BelongingsAdderForm> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
                   Text('Code:'),
-                  FutureBuilder<String>(
-                      future: _barcodeString,
-                      builder: (BuildContext context, AsyncSnapshot<String> snapshot){
-                        this.CodeController.text = snapshot.data != null ? snapshot.data : '';
-                        return TextFormField(
-                            controller: this.CodeController,
-                            keyboardType: TextInputType.number,
-                        );
-                      }
+                  TextFormField(
+                    controller: this.CodeController,
+                    keyboardType: TextInputType.number,
+                    validator: (value){
+                      if(value.isEmpty)
+                        return "Vous devez scanner un code pour récupérer l'objet";
+                    }
                   ),
                   RaisedButton(
                     color: Colors.blue,
