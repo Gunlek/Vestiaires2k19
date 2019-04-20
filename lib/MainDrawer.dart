@@ -24,7 +24,7 @@ class MainDrawerState extends State<MainDrawer> {
         child: Column(
           children: <Widget>[
             Image(
-                image: AssetImage('assets/fignoss.png'),
+                image: AssetImage('assets/fignoss_alpha.png'),
                 width: 150
             ),
             FlatButton(
