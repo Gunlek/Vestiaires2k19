@@ -1,5 +1,6 @@
 import 'package:app_vestiaires/components/BelongingsAdder.dart';
 import 'package:app_vestiaires/components/BelongingsGetter.dart';
+import 'package:app_vestiaires/components/Parameters.dart';
 import 'package:flutter/material.dart';
 
 /*
@@ -19,25 +20,33 @@ class MainDrawerState extends State<MainDrawer> {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-        children: <Widget>[
-          Image(
-              image: AssetImage('assets/fignoss.png'),
-              width: 150
-          ),
-          FlatButton(
-            child: Text('Ajouter dans un vestiaire'),
-            onPressed: () {
-              _openBelongingsAdder(context);
-            }
-          ),
-          FlatButton(
-              child: Text('Récupérer depuis un vestiaire'),
+    return Container(
+        child: Column(
+          children: <Widget>[
+            Image(
+                image: AssetImage('assets/fignoss.png'),
+                width: 150
+            ),
+            FlatButton(
+              child: Text('Ajouter dans un vestiaire'),
               onPressed: () {
-                _openBelongingsGetter(context);
+                _openBelongingsAdder(context);
               }
-          ),
-        ]
+            ),
+            FlatButton(
+                child: Text('Récupérer depuis un vestiaire'),
+                onPressed: () {
+                  _openBelongingsGetter(context);
+                }
+            ),
+            FlatButton(
+                child: Text('Paramètres'),
+                onPressed: () {
+                  _openParams(context);
+                }
+            ),
+          ]
+      )
     );
   }
 
@@ -47,6 +56,10 @@ class MainDrawerState extends State<MainDrawer> {
 
   _openBelongingsGetter(context){
     Navigator.push(context, MaterialPageRoute(builder: (context) => BelongingsGetter()));
+  }
+
+  _openParams(context){
+    Navigator.push(context, MaterialPageRoute(builder: (context) => Parameters()));
   }
 
 }
