@@ -1,4 +1,5 @@
 import 'package:app_vestiaires/components/BelongingsAdder.dart';
+import 'package:app_vestiaires/components/BelongingsGetter.dart';
 import 'package:flutter/material.dart';
 
 /*
@@ -30,12 +31,22 @@ class MainDrawerState extends State<MainDrawer> {
               _openBelongingsAdder(context);
             }
           ),
+          FlatButton(
+              child: Text('Récupérer depuis un vestiaire'),
+              onPressed: () {
+                _openBelongingsGetter(context);
+              }
+          ),
         ]
     );
   }
 
   _openBelongingsAdder(context) {
     Navigator.push(context, MaterialPageRoute(builder: (context) => BelongingsAdder()));
+  }
+
+  _openBelongingsGetter(context){
+    Navigator.push(context, MaterialPageRoute(builder: (context) => BelongingsGetter()));
   }
 
 }
