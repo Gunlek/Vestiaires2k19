@@ -33,7 +33,6 @@ class BelongingsAdderFormState extends State<BelongingsAdderForm> {
   TextEditingController DescController = new TextEditingController();
   TextEditingController CloakroomController = new TextEditingController();
   TextEditingController InfoController = new TextEditingController();
-  Future<String> _barcodeString;
 
   final _formKey = GlobalKey<FormState>();
 
