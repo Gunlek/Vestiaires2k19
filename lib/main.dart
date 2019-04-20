@@ -35,7 +35,7 @@ class MyAppState extends State<MyAppStateful> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
+      title: 'Vestiaires 2019',
       theme: ThemeData(
           primarySwatch: Colors.green,
           brightness: _darkMode ? Brightness.dark : Brightness.light
