@@ -165,6 +165,9 @@ class LoginFormState extends State<LoginForm> {
                               if (rememberMe)
                                 await sharedPrefs.setString("bucque", bucqueController.text);
                               _registerUserData(bucqueController.text, currentProms);
+                              await sharedPrefs.setString("currentUser", bucqueController.text);
+                              await sharedPrefs.setString("currentUserProms", currentProms);
+                              await conn.query('INSERT INTO logger(log_timestamp, log_info) VALUES(?, ?)', [DateTime.now().toString(), bucqueController.text + " from prom's " + currentProms + " logged in"]);
                               Scaffold.of(context).hideCurrentSnackBar();
                               Scaffold.of(context).showSnackBar(SnackBar(content: Text('Vous êtes authentifié !'), backgroundColor: Colors.green));
                               Navigator.push(context, MaterialPageRoute(builder: (context) => MainMenu()));

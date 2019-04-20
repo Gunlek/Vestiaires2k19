@@ -12,6 +12,8 @@ class Dialogs {
       data[4] => belongings_location
       data[5] => belongings_info
       data[6] => vestiaire_name
+      data[7] => currentUser
+      data[8] => currentUserProms
      */
 
     TextEditingController DescriptionController = TextEditingController(text: data[1]);
@@ -127,6 +129,7 @@ class Dialogs {
     );
     var conn = await mysql.MySqlConnection.connect(sqlSettings);
     conn.query("DELETE FROM belongings WHERE belongings_id = ?", [belongingsId]);
+    await conn.query('INSERT INTO logger(log_timestamp, log_info) VALUES(?, ?)', [DateTime.now().toString(), data[7] + " from prom's " + data[8] + " removed belongings with id_tag: #" + data[3] + " from cloakroom " + data[6]]);
     Scaffold.of(context).hideCurrentSnackBar();
     Scaffold.of(context).showSnackBar(SnackBar(content: Text("Affaire récupérée..."), backgroundColor: Colors.green));
     Navigator.pop(context);

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:barcode_scan/barcode_scan.dart';
 import 'package:app_vestiaires/components/Dialogs.dart';
 import 'package:mysql1/mysql1.dart' as mysql;
+import 'package:shared_preferences/shared_preferences.dart';
 
 class BelongingsGetter extends StatelessWidget {
 
@@ -30,9 +31,17 @@ class BelongingsGetterForm extends StatefulWidget {
 class BelongingsGetterFormState extends State<BelongingsGetterForm> {
 
   final _formkey = GlobalKey<BelongingsGetterFormState>();
-  Future<String> _codeString;
 
   TextEditingController CodeController = TextEditingController();
+
+  String _currentUser;
+  String _currentUserProms;
+
+  @override
+  void initState() {
+    super.initState();
+    _getCurrentUser();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -102,12 +111,25 @@ class BelongingsGetterFormState extends State<BelongingsGetterForm> {
       for(var el in row)
         rowList.add(el.toString());
       rowList.add(cloakroom.elementAt(0)[0]);
+      rowList.add(_currentUser);
+      rowList.add(_currentUserProms);
+      await conn.query('INSERT INTO logger(log_timestamp, log_info) VALUES(?, ?)', [DateTime.now().toString(), _currentUser + " from prom's " + _currentUserProms + " searched for belongings with id_tag: #" + CodeController.text]);
       Dialogs().information(context, rowList);
     }
     else {
       Scaffold.of(context).hideCurrentSnackBar();
       Scaffold.of(context).showSnackBar(SnackBar(content: Text("Code inccnnu"), backgroundColor: Colors.red));
     }
+  }
+
+  _getCurrentUser() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String currentUser = prefs.getString("currentUser");
+    String currentUserProms = prefs.getString("currentUserProms");
+    setState(() {
+      _currentUser = currentUser;
+      _currentUserProms = currentUserProms;
+    });
   }
 
 }

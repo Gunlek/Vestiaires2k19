@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:barcode_scan/barcode_scan.dart';
 import 'package:mysql1/mysql1.dart' as mysql;
+import 'package:shared_preferences/shared_preferences.dart';
 
 class BelongingsAdder extends StatelessWidget {
 
@@ -35,6 +36,15 @@ class BelongingsAdderFormState extends State<BelongingsAdderForm> {
   TextEditingController InfoController = new TextEditingController();
 
   final _formKey = GlobalKey<FormState>();
+
+  String _currentUser;
+  String _currentUserProms;
+
+  @override
+  void initState() {
+    super.initState();
+    _getCurrentUser();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -137,6 +147,7 @@ class BelongingsAdderFormState extends State<BelongingsAdderForm> {
                             }
                             else {
                               await conn.query('INSERT INTO belongings(belongings_type, belongings_cloakroom, belongings_number, belongings_location, belongings_info) VALUES(?, ?, ?, ?, ?)', [DescController.text, cloakroomKey, CodeController.text, LocationController.text, InfoController.text]);
+                              await conn.query('INSERT INTO logger(log_timestamp, log_info) VALUES(?, ?)', [DateTime.now().toString(), _currentUser + " from prom's " + _currentUserProms + " added belongings on " + CloakroomController.text + " id_tag: #" + CodeController.text]);
                               Scaffold.of(context).hideCurrentSnackBar();
                               Scaffold.of(context).showSnackBar(SnackBar(content: Text('Objet ajouté'), backgroundColor: Colors.green));
                             }
@@ -154,6 +165,16 @@ class BelongingsAdderFormState extends State<BelongingsAdderForm> {
             )
         )
     );
+  }
+
+  _getCurrentUser() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String currentUser = prefs.getString("currentUser");
+    String currentUserProms = prefs.getString("currentUserProms");
+    setState(() {
+      _currentUser = currentUser;
+      _currentUserProms = currentUserProms;
+    });
   }
 
 }
