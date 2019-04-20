@@ -122,7 +122,7 @@ class BelongingsAdderFormState extends State<BelongingsAdderForm> {
                         if(_formKey.currentState.validate()){
                           Scaffold.of(context).showSnackBar(SnackBar(content: Text('Ajout en cours...')));
                           var settings = new mysql.ConnectionSettings(
-                              host: '91.121.135.77',
+                              host: 'ftp.simple-duino.com',
                               port: 3306,
                               user: 'vestiaires_2k19',
                               password: 'emL3xC7jKCx7Nb5n',
