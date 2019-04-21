@@ -38,7 +38,7 @@ class MyAppState extends State<MyAppStateful> {
       title: 'Vestiaires 2019',
       theme: ThemeData(
           primarySwatch: Colors.green,
-          brightness: _darkMode ? Brightness.dark : Brightness.light
+          brightness: _darkMode != false ? Brightness.dark : Brightness.light
       ),
       home: Scaffold(
           appBar: AppBar(
@@ -54,7 +54,7 @@ class MyAppState extends State<MyAppStateful> {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     bool darkMode = prefs.getBool("darkMode") != null ? prefs.getBool("darkMode") : false;
     this.setState((){
-      _darkMode = darkMode;
+      this._darkMode = darkMode;
     });
   }
 
