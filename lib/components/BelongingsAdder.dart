@@ -3,6 +3,14 @@ import 'package:barcode_scan/barcode_scan.dart';
 import 'package:mysql1/mysql1.dart' as mysql;
 import 'package:shared_preferences/shared_preferences.dart';
 
+
+class User {
+  const User(this.name);
+
+  final String name;
+}
+
+
 class BelongingsAdder extends StatelessWidget {
 
   @override
@@ -34,6 +42,9 @@ class BelongingsAdderFormState extends State<BelongingsAdderForm> {
   TextEditingController DescController = new TextEditingController();
   TextEditingController CloakroomController = new TextEditingController();
   TextEditingController InfoController = new TextEditingController();
+
+  User selectedUser;
+  List<User> users = <User>[const User('rouge'), const User('vert'), const User('bleu'), const User('jaune')];
 
   final _formKey = GlobalKey<FormState>();
 
@@ -101,17 +112,42 @@ class BelongingsAdderFormState extends State<BelongingsAdderForm> {
                     },
                   ),
 
+
+                  DropdownButton<User>(
+                    hint: new Text("Select a Vestiaire"),
+                    value: selectedUser,
+                    onChanged: (User newValue) {
+                      setState(() {
+                        selectedUser = newValue;
+                      });
+                    },
+                    items: users.map((User user) {
+                      return new DropdownMenuItem<User>(
+                        value: user,
+                        child: new Text(
+                          user.name,
+                          style: new TextStyle(color: Colors.black),
+                        ),
+                      );
+                    }).toList(),
+                  ),
+
+
+
                   Padding(padding: EdgeInsets.all(10.0)),
 
                   Text('Emplacement:'),
                   // FIXME: Location could be a List too...
+                  //NO: keep keyboard with uppercase
                   TextFormField(
                     controller: LocationController,
+                    textCapitalization: TextCapitalization.characters,
                     validator: (value){
                       if(value.isEmpty)
                         return "Spécifiez un emplacement";
                     },
                   ),
+
 
                   Padding(padding: EdgeInsets.all(10.0)),
 
