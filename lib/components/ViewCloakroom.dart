@@ -5,36 +5,14 @@ enum Cloakroom {RED, GREEN, BLUE, YELLOW}
 
 class ViewCloakroom extends StatelessWidget {
 
-  Cloakroom cloakroom;
   String cloakroomTitle;
   String cloakroomKey;
   Color cloakroomColor;
 
-  ViewCloakroom(Cloakroom cloakroom){
-    this.cloakroom = cloakroom;
-    switch(this.cloakroom){
-
-      case Cloakroom.RED:
-        this.cloakroomTitle = "Vestiaire rouge";
-        this.cloakroomKey = "red";
-        this.cloakroomColor = Colors.red;
-        break;
-      case Cloakroom.GREEN:
-        this.cloakroomTitle = "Vestiaire vert";
-        this.cloakroomKey = "green";
-        this.cloakroomColor = Colors.green;
-        break;
-      case Cloakroom.BLUE:
-        this.cloakroomTitle = "Vestiaire bleu";
-        this.cloakroomKey = "blue";
-        this.cloakroomColor = Colors.blue;
-        break;
-      case Cloakroom.YELLOW:
-        this.cloakroomTitle = "Vestiaire jaune";
-        this.cloakroomKey = "yellow";
-        this.cloakroomColor = Colors.amber;
-        break;
-    }
+  ViewCloakroom(String cloakroomKey, String cloakroomName, Color cloakroomColor){
+    this.cloakroomKey = cloakroomKey;
+    this.cloakroomTitle = cloakroomName;
+    this.cloakroomColor = cloakroomColor;
   }
 
   @override
@@ -93,7 +71,7 @@ class BelongingsListingState extends State<BelongingsListing> {
         db: 'vestiaires_2k19'
     );
     var conn = await mysql.MySqlConnection.connect(settings);
-    var results = await conn.query("SELECT * FROM belongings INNER JOIN cloakrooms ON belongings.belongings_cloakroom = cloakrooms.cloakroom_key WHERE cloakrooms.cloakroom_color=?", [this.cloakroomKey]);
+    var results = await conn.query("SELECT * FROM belongings INNER JOIN cloakrooms ON belongings.belongings_cloakroom = cloakrooms.cloakroom_key WHERE cloakrooms.cloakroom_key=?", [this.cloakroomKey]);
     for(var row in results){
       String rowStr = row[3]; // belongings_number
       rowStr += " - ";        // Separator
