@@ -78,7 +78,7 @@ class BelongingsListingState extends State<BelongingsListing> {
       rowStr += row[1];       // belongings_type
       rowStr += " - ";        // Separator
       rowStr += row[4];       // belonging_location
-      rowStr += " - ";        // Separator
+      rowStr += row[5] == "" ? "" : " - ";        // Separator
       rowStr += row[5];       // belongings_info
       currentBelongings.add(rowStr);
     }
