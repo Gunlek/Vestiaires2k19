@@ -138,15 +138,13 @@ class BelongingsAdderFormState extends State<BelongingsAdderForm> {
                     Padding(padding: EdgeInsets.all(10.0)),
 
                     Text('Emplacement:'),
-                    // FIXME: Location could be a List too...
-                    //NO: keep keyboard with uppercase
                     TextFormField(
                       controller: LocationController,
                       textCapitalization: TextCapitalization.characters,
                       validator: (value){
                         if(value.isEmpty)
                           return "Spécifiez un emplacement";
-                      },
+                      }
                     ),
 
 
