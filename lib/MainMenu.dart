@@ -50,6 +50,8 @@ class MenuState extends State<MenuStateful> {
   Map<dynamic, MaterialColor> cloakroomColors = Map();
   Map<String, MaterialColor> colors = Map();
 
+  bool progressActive = true;
+
   List<Widget> cloakrooms = List();
 
   @override
@@ -61,13 +63,25 @@ class MenuState extends State<MenuStateful> {
 
   @override
   Widget build(BuildContext context) {
-    return GridView.count(
-        crossAxisCount: 2,
-        crossAxisSpacing: 10.0,
-        mainAxisSpacing: 10.0,
-        padding: EdgeInsets.all(20.0),
-        children: this.cloakrooms
-    );
+    if(this.progressActive){
+      return Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            Center(
+                child: CircularProgressIndicator()
+            )
+          ]
+      );
+    }
+    else {
+      return GridView.count(
+          crossAxisCount: 2,
+          crossAxisSpacing: 10.0,
+          mainAxisSpacing: 10.0,
+          padding: EdgeInsets.all(20.0),
+          children: this.cloakrooms
+      );
+    }
   }
 
   Widget _generateCloakroomButton(BuildContext context, String cloakroomKey, String cloakroomName, Color color){
@@ -104,6 +118,7 @@ class MenuState extends State<MenuStateful> {
   }
 
   _gatherCloakroomList() async {
+    this.progressActive = true;
     var settings = new mysql.ConnectionSettings(
         host: 'ftp.simple-duino.com',
         port: 3306,
@@ -129,6 +144,7 @@ class MenuState extends State<MenuStateful> {
       this.cloakroomList = cloakroomMap;
       this.cloakroomColors = cloakroomColor;
       this.cloakrooms = tempCloakroomsWidget;
+      this.progressActive = false;
     });
   }
 
