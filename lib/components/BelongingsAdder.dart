@@ -3,14 +3,6 @@ import 'package:barcode_scan/barcode_scan.dart';
 import 'package:mysql1/mysql1.dart' as mysql;
 import 'package:shared_preferences/shared_preferences.dart';
 
-
-class User {
-  const User(this.name);
-
-  final String name;
-}
-
-
 class BelongingsAdder extends StatelessWidget {
 
   @override
@@ -43,18 +35,22 @@ class BelongingsAdderFormState extends State<BelongingsAdderForm> {
   TextEditingController CloakroomController = new TextEditingController();
   TextEditingController InfoController = new TextEditingController();
 
-  User selectedUser;
-  List<User> users = <User>[const User('rouge'), const User('vert'), const User('bleu'), const User('jaune')];
-
   final _formKey = GlobalKey<FormState>();
 
+  String _cloakroom;
   String _currentUser;
   String _currentUserProms;
+  String _userCloakroomName;
+  String _userCloakroomKey;
+  Future<String> cloakroomRecoverState;
+  List<String> cloakroomList = List();
 
   @override
   void initState() {
     super.initState();
     _getCurrentUser();
+    this.cloakroomRecoverState = _getCloakroomList();
+    _getUserCloakroom();
   }
 
   @override
@@ -104,36 +100,33 @@ class BelongingsAdderFormState extends State<BelongingsAdderForm> {
                     Padding(padding: EdgeInsets.all(10.0)),
 
                     Text('Vestiaire: '),
-                    // FIXME: Vestiaire is not a TextFormField, it's a list
-                    TextFormField(
-                      controller: CloakroomController,
-                      validator: (value){
-                        if(value.isEmpty)
-                          return "Spécifiez un vestiaire";
-                      },
-                    ),
-
-
-                    DropdownButton<User>(
-                      hint: new Text("Select a Vestiaire"),
-                      value: selectedUser,
-                      onChanged: (User newValue) {
-                        setState(() {
-                          selectedUser = newValue;
-                        });
-                      },
-                      items: users.map((User user) {
-                        return new DropdownMenuItem<User>(
-                          value: user,
-                          child: new Text(
-                            user.name,
-                            style: new TextStyle(color: Colors.black),
-                          ),
+                    FutureBuilder(
+                      future: this.cloakroomRecoverState,
+                      builder: (BuildContext context, AsyncSnapshot snapshot){
+                        return Container(
+                          width: double.infinity,
+                            child: DropdownButton(
+                              hint: new Text("Spécifiez un vestiaire"),
+                              value: this._cloakroom,
+                              onChanged: (value) {
+                                setState(() {
+                                  this._cloakroom = value;
+                                });
+                              },
+                              items: this.cloakroomList.map((String value) {
+                                return DropdownMenuItem(
+                                  value: value,
+                                  child: Container(
+                                    child: Text(
+                                      value
+                                    ),
+                                  )
+                                );
+                              }).toList(),
+                            )
                         );
-                      }).toList(),
+                      }
                     ),
-
-
 
                     Padding(padding: EdgeInsets.all(10.0)),
 
@@ -210,6 +203,38 @@ class BelongingsAdderFormState extends State<BelongingsAdderForm> {
     setState(() {
       _currentUser = currentUser;
       _currentUserProms = currentUserProms;
+    });
+  }
+
+  Future<String> _getCloakroomList() async {
+    var settings = new mysql.ConnectionSettings(
+        host: 'ftp.simple-duino.com',
+        port: 3306,
+        user: 'vestiaires_2k19',
+        password: 'emL3xC7jKCx7Nb5n',
+        db: 'vestiaires_2k19'
+    );
+    var conn = await mysql.MySqlConnection.connect(settings);
+    var results = await conn.query("SELECT cloakroom_name FROM cloakrooms");
+    List<String> tempCloakroomList = List();
+    for(mysql.Row row in results){
+      tempCloakroomList.add(row[0]);
+    }
+    setState((){
+      this.cloakroomList = tempCloakroomList;
+    });
+
+    return "Success";
+  }
+
+  _getUserCloakroom() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String currentUserCloakroom = prefs.getString("currentUserCloakroom");
+    String currentUserCloakroomKey = prefs.getString("currentUserCloakroomKey");
+    setState(() {
+      this._userCloakroomName = currentUserCloakroom;
+      this._userCloakroomKey = currentUserCloakroomKey;
+      this._cloakroom = this._userCloakroomName;
     });
   }
 
