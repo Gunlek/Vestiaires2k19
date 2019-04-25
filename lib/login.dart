@@ -161,10 +161,14 @@ class LoginFormState extends State<LoginForm> {
                             var results = await conn.query("SELECT * FROM users WHERE bucque = ? AND proms = ?", [bucqueController.text, currentProms]);
                             SharedPreferences sharedPrefs = await SharedPreferences.getInstance();
                             if (results.length > 0) {
+                              mysql.Row row = results.elementAt(0);
                               await sharedPrefs.setBool("remember", rememberMe);
                               if (rememberMe)
                                 await sharedPrefs.setString("bucque", bucqueController.text);
-                              _registerUserData(bucqueController.text, currentProms);
+                              String userCloakroomKey = row[3];
+                              var cloakroom = await conn.query("SELECT * FROM cloakrooms WHERE cloakroom_key = ?", [userCloakroomKey]);
+                              String userCloakroomName = cloakroom.elementAt(0)[1];
+                              _registerUserData(bucqueController.text, currentProms, userCloakroomName, userCloakroomKey);
                               await sharedPrefs.setString("currentUser", bucqueController.text);
                               await sharedPrefs.setString("currentUserProms", currentProms);
                               await conn.query('INSERT INTO logger(log_timestamp, log_info) VALUES(?, ?)', [DateTime.now().toString(), bucqueController.text + " from prom's " + currentProms + " logged in"]);
@@ -188,10 +192,12 @@ class LoginFormState extends State<LoginForm> {
     );
   }
 
-  _registerUserData(String bucque, String proms) async {
+  _registerUserData(String bucque, String proms, String cloakroomName, String cloakroomKey) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     prefs.setString("session_bucque", bucque);
     prefs.setString("session_proms", proms);
+    prefs.setString("currentUserCloakroom", cloakroomName);
+    prefs.setString("currentUserCloakroomKey", cloakroomKey);
   }
 
 }
