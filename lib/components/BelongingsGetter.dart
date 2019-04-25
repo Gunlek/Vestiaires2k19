@@ -114,6 +114,7 @@ class BelongingsGetterFormState extends State<BelongingsGetterForm> {
       rowList.add(_currentUser);
       rowList.add(_currentUserProms);
       await conn.query('INSERT INTO logger(log_timestamp, log_info) VALUES(?, ?)', [DateTime.now().toString(), _currentUser + " from prom's " + _currentUserProms + " searched for belongings with id_tag: #" + CodeController.text]);
+      FocusScope.of(context).requestFocus(new FocusNode());
       Dialogs().information(context, rowList);
     }
     else {
