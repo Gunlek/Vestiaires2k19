@@ -3,7 +3,7 @@ import 'package:mysql1/mysql1.dart' as mysql;
 
 class Dialogs {
 
-  information(BuildContext context, List<String> data){
+  information(BuildContext context, List<String> data, FocusNode codeFocusNode){
     /*
       data[0] => belongings_id
       data[1] => belongings_type
@@ -105,7 +105,7 @@ class Dialogs {
                     color: Colors.blue,
                     child: Center(child: Text('Récupérer', style: TextStyle(color: Colors.white))),
                     onPressed: (){
-                      _removeBelongingsFromDatabase(data, context);
+                      _removeBelongingsFromDatabase(data, context, codeFocusNode);
                     },
                   )
                 ]
@@ -117,7 +117,7 @@ class Dialogs {
     );
   }
 
-  _removeBelongingsFromDatabase(List<String> data, BuildContext context) async {
+  _removeBelongingsFromDatabase(List<String> data, BuildContext context, FocusNode codeFocusNode) async {
     Scaffold.of(context).showSnackBar(SnackBar(content: Text("Récupération en cours...")));
     int belongingsId = int.tryParse(data[0]);
     var sqlSettings = mysql.ConnectionSettings(
@@ -129,10 +129,11 @@ class Dialogs {
     );
     var conn = await mysql.MySqlConnection.connect(sqlSettings);
     conn.query("DELETE FROM belongings WHERE belongings_id = ?", [belongingsId]);
-    await conn.query('INSERT INTO logger(log_timestamp, log_info) VALUES(?, ?)', [DateTime.now().toString(), data[7] + " from prom's " + data[8] + " removed belongings with id_tag: #" + data[3] + " from cloakroom " + data[6]]);
     Scaffold.of(context).hideCurrentSnackBar();
     Scaffold.of(context).showSnackBar(SnackBar(content: Text("Affaire récupérée..."), backgroundColor: Colors.green));
     Navigator.pop(context);
+    if(codeFocusNode!=null)
+      FocusScope.of(context).requestFocus(codeFocusNode);
   }
 
 }
