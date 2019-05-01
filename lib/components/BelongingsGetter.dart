@@ -34,15 +34,6 @@ class BelongingsGetterFormState extends State<BelongingsGetterForm> {
 
   TextEditingController CodeController = TextEditingController();
 
-  String _currentUser;
-  String _currentUserProms;
-
-  @override
-  void initState() {
-    super.initState();
-    _getCurrentUser();
-  }
-
   @override
   Widget build(BuildContext context) {
     return Form(
@@ -111,9 +102,6 @@ class BelongingsGetterFormState extends State<BelongingsGetterForm> {
       for(var el in row)
         rowList.add(el.toString());
       rowList.add(cloakroom.elementAt(0)[0]);
-      rowList.add(_currentUser);
-      rowList.add(_currentUserProms);
-      await conn.query('INSERT INTO logger(log_timestamp, log_info) VALUES(?, ?)', [DateTime.now().toString(), _currentUser + " from prom's " + _currentUserProms + " searched for belongings with id_tag: #" + CodeController.text]);
       FocusScope.of(context).requestFocus(new FocusNode());
       Dialogs().information(context, rowList);
     }
@@ -121,16 +109,6 @@ class BelongingsGetterFormState extends State<BelongingsGetterForm> {
       Scaffold.of(context).hideCurrentSnackBar();
       Scaffold.of(context).showSnackBar(SnackBar(content: Text("Code inccnnu"), backgroundColor: Colors.red));
     }
-  }
-
-  _getCurrentUser() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    String currentUser = prefs.getString("currentUser");
-    String currentUserProms = prefs.getString("currentUserProms");
-    setState(() {
-      _currentUser = currentUser;
-      _currentUserProms = currentUserProms;
-    });
   }
 
 }

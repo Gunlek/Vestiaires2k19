@@ -4,200 +4,131 @@ import 'package:mysql1/mysql1.dart' as mysql;
 import 'package:shared_preferences/shared_preferences.dart';
 
 class LoginPage extends StatelessWidget {
+
   @override
-  Widget build(BuildContext context) {
-    return Column(
-      children: <Widget>[
-          Center(
-            child: Text(
-                'Identifiez vous',
-                style: TextStyle(
-                  fontSize: 30,
-                  fontWeight: FontWeight.bold
-                )
-            )
-          ),
-        Padding(
-          padding: const EdgeInsets.symmetric(vertical: 20.0),
-          child: LoginForm()
-        )
-        ]
-    );
+  Widget build(BuildContext context){
+    return LoginPageStateful();
   }
 
 }
 
-String currentProms = 'li218';
-bool rememberMe = false;
+class LoginPageStateful extends StatefulWidget {
 
-class LoginForm extends StatefulWidget {
   @override
   State<StatefulWidget> createState() {
-    return LoginFormState();
+    return LoginPageState();
   }
 
 }
 
-class LoginFormState extends State<LoginForm> {
+class LoginPageState extends State<LoginPageStateful> {
 
-  final _formKey = GlobalKey<FormState>();
-
-  TextEditingController bucqueController;
-  String recoveredBucque;
+  List<DropdownMenuItem> cloakroomName;
+  Map<String, String> cloakroomAssociation;
+  String cloakroom;
+  bool progressActive = true;
 
   @override
-  void initState(){
+  void initState() {
     super.initState();
-    _recoverBucque();
-  }
-
-  Future<String> _recoverBucque() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance().then((sp) {
-      bool remember = sp.getBool("remember");
-      if(remember == null)
-        remember = false;
-      this.setState(() {
-        rememberMe = remember;
-        if(remember){
-          recoveredBucque = sp.getString("bucque");
-        }
-        else
-          recoveredBucque = "";
-      });
-    });
-
-    return "Success";
+    _gatherCloakroomList();
   }
 
   @override
   Widget build(BuildContext context) {
-    bucqueController = TextEditingController(text: recoveredBucque);
-    return Form(
-        key: _formKey,
-        child: Container(
-            width: 250,
-            child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: <Widget>[
-                  Text(
-                      'Bucque',
-                      style: TextStyle(
-                        fontSize: 20,
-                      )
-                  ),
-                  TextFormField(
-                    style: TextStyle(fontSize: 15),
-                    controller: bucqueController,
-                    validator: (value) {
-                      if (value.isEmpty) {
-                        return 'Entrez votre bucque';
-                      }
-                    },
-                  ),
+    if(this.progressActive)
+      return _loadingPage(context);
 
-                  Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 10)
-                  ),
-
-                  Text(
-                      'Prom\'s',
-                      style: TextStyle(
-                        fontSize: 20,
-                      )
-                  ),
-                  DropdownButtonFormField<String>(
-                      value: currentProms,
-                      onChanged: (String newValue) {
-                        setState(() {
-                          currentProms = newValue;
-                        });
-                      },
-                      items: <String>['li217', 'li218', 'li218+1'].map<
-                          DropdownMenuItem<String>>((String value) {
-                        return DropdownMenuItem<String>(
-                          value: value,
-                          child: Text(value),
-                        );
-                      }).toList(),
-                      validator: (value) {
-                        if (value.isEmpty) {
-                          return 'Choisissez votre prom\'s';
-                        }
-                      }
-                  ),
-                  Padding(padding: EdgeInsets.symmetric(vertical: 10)),
-                  Center(
-                    child: Row(
-                        children: <Widget>[
-                          Switch(
-                            value: rememberMe,
-                            onChanged: (value) {
-                              setState(() {
-                                rememberMe = value;
-                              });
-                            },
-                          ),
-                          Text(
-                              'Se souvenir de moi'
-                          )
-                        ]
-                    ),
-                  ),
-                  Padding(padding: EdgeInsets.symmetric(vertical: 10)),
-                  Center(
-                      child: RaisedButton(
-                        onPressed: () async {
-                          if (_formKey.currentState.validate()) {
-                            Scaffold.of(context).showSnackBar(SnackBar(content: Text('Authentification en cours')));
-
-                            var settings = new mysql.ConnectionSettings(
-                                host: 'ftp.simple-duino.com',
-                                port: 3306,
-                                user: 'vestiaires_2k19',
-                                password: 'emL3xC7jKCx7Nb5n',
-                                db: 'vestiaires_2k19'
-                            );
-                            var conn = await mysql.MySqlConnection.connect(settings);
-                            var results = await conn.query("SELECT * FROM users WHERE bucque = ? AND proms = ?", [bucqueController.text, currentProms]);
-                            SharedPreferences sharedPrefs = await SharedPreferences.getInstance();
-                            if (results.length > 0) {
-                              mysql.Row row = results.elementAt(0);
-                              await sharedPrefs.setBool("remember", rememberMe);
-                              if (rememberMe)
-                                await sharedPrefs.setString("bucque", bucqueController.text);
-                              String userCloakroomKey = row[3];
-                              var cloakroom = await conn.query("SELECT * FROM cloakrooms WHERE cloakroom_key = ?", [userCloakroomKey]);
-                              String userCloakroomName = cloakroom.elementAt(0)[1];
-                              _registerUserData(bucqueController.text, currentProms, userCloakroomName, userCloakroomKey);
-                              await sharedPrefs.setString("currentUser", bucqueController.text);
-                              await sharedPrefs.setString("currentUserProms", currentProms);
-                              await conn.query('INSERT INTO logger(log_timestamp, log_info) VALUES(?, ?)', [DateTime.now().toString(), bucqueController.text + " from prom's " + currentProms + " logged in"]);
-                              Scaffold.of(context).hideCurrentSnackBar();
-                              Scaffold.of(context).showSnackBar(SnackBar(content: Text('Vous êtes authentifié !'), backgroundColor: Colors.green));
-                              Navigator.push(context, MaterialPageRoute(builder: (context) => MainMenu()));
-                            }
-                            else {
-                              Scaffold.of(context).showSnackBar(SnackBar(content: Text('Authentification impossible'), backgroundColor: Colors.red));
-                            }
-                          }
-                        },
-                        child: Text('M\'identifier'),
-                        color: Colors.green,
-                        textColor: Colors.white,
-                      )
-                  )
-                ]
-            )
+    return Container(
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [Color(0xffecf0f1), Color(0xffbdc3c7)],
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          stops: [0.0, 1.0]
         )
+      ),
+      width: double.infinity,
+      height: double.infinity,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Image(
+            image: AssetImage('assets/fignoss_alpha.png')
+          ),
+          Text('Choisissez votre vestiaire: '),
+          DropdownButton(
+            items: this.cloakroomName,
+            value: this.cloakroom,
+            onChanged: (value) {
+              setState(() {
+                this.cloakroom = value;
+              });
+            },
+          ),
+          RaisedButton(
+            child: Text("Commencer ma rotance", style: TextStyle(color: Color(0xffeeeeee))),
+            color: Color(0xff2980b9),
+            onPressed: () {
+              _loginUser(this.cloakroom);
+            }
+          )
+        ]
+      )
     );
   }
 
-  _registerUserData(String bucque, String proms, String cloakroomName, String cloakroomKey) async {
+  _loginUser(String cloakroomKey) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    prefs.setString("session_bucque", bucque);
-    prefs.setString("session_proms", proms);
-    prefs.setString("currentUserCloakroom", cloakroomName);
     prefs.setString("currentUserCloakroomKey", cloakroomKey);
+    prefs.setString("currentUserCloakroom", this.cloakroomAssociation[cloakroomKey]);
+    Navigator.of(context).push(MaterialPageRoute(builder: (context) => MainMenu()));
+  }
+
+  Widget _loadingPage(BuildContext context){
+    return Container(
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [Color(0xffecf0f1), Color(0xffbdc3c7)],
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          stops: [0.0, 1.0]
+        )
+      ),
+      width: double.infinity,
+      height: double.infinity,
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [CircularProgressIndicator()]
+      )
+    );
+  }
+
+  _gatherCloakroomList() async {
+    this.progressActive = true;
+    var settings = new mysql.ConnectionSettings(
+        host: 'ftp.simple-duino.com',
+        port: 3306,
+        user: 'vestiaires_2k19',
+        password: 'emL3xC7jKCx7Nb5n',
+        db: 'vestiaires_2k19'
+    );
+    var conn = await mysql.MySqlConnection.connect(settings);
+    var results = await conn.query("SELECT cloakroom_name, cloakroom_key, cloakroom_color FROM cloakrooms");
+    List<DropdownMenuItem> cloakroomList = new List();
+    Map<String, String> cloakroomAssociation = new Map();
+    for(mysql.Row row in results){
+      cloakroomList.add(DropdownMenuItem(child: Text(row[0]), value: row[1]));
+      cloakroomAssociation.putIfAbsent(row[1], () => row[0]);
+    }
+
+    this.setState((){
+      this.cloakroom = cloakroomList.length > 0 ? cloakroomList[0].value : null;
+      this.cloakroomAssociation = cloakroomAssociation;
+      this.cloakroomName = cloakroomList;
+      this.progressActive = false;
+    });
   }
 
 }

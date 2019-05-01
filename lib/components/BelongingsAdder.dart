@@ -38,17 +38,13 @@ class BelongingsAdderFormState extends State<BelongingsAdderForm> {
   final _formKey = GlobalKey<FormState>();
 
   String _cloakroom;
-  String _currentUser;
-  String _currentUserProms;
   String _userCloakroomName;
-  String _userCloakroomKey;
   Future<String> cloakroomRecoverState;
   List<String> cloakroomList = List();
 
   @override
   void initState() {
     super.initState();
-    _getCurrentUser();
     this.cloakroomRecoverState = _getCloakroomList();
     _getUserCloakroom();
   }
@@ -175,7 +171,6 @@ class BelongingsAdderFormState extends State<BelongingsAdderForm> {
                               }
                               else {
                                 await conn.query('INSERT INTO belongings(belongings_type, belongings_cloakroom, belongings_number, belongings_location, belongings_info) VALUES(?, ?, ?, ?, ?)', [DescController.text, cloakroomKey, CodeController.text, LocationController.text, InfoController.text]);
-                                await conn.query('INSERT INTO logger(log_timestamp, log_info) VALUES(?, ?)', [DateTime.now().toString(), _currentUser + " from prom's " + _currentUserProms + " added belongings on " + CloakroomController.text + " id_tag: #" + CodeController.text]);
                                 Scaffold.of(context).hideCurrentSnackBar();
                                 Scaffold.of(context).showSnackBar(SnackBar(content: Text('Objet ajouté'), backgroundColor: Colors.green));
                               }
@@ -194,16 +189,6 @@ class BelongingsAdderFormState extends State<BelongingsAdderForm> {
             )
         )
     );
-  }
-
-  _getCurrentUser() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    String currentUser = prefs.getString("currentUser");
-    String currentUserProms = prefs.getString("currentUserProms");
-    setState(() {
-      _currentUser = currentUser;
-      _currentUserProms = currentUserProms;
-    });
   }
 
   Future<String> _getCloakroomList() async {
@@ -233,7 +218,6 @@ class BelongingsAdderFormState extends State<BelongingsAdderForm> {
     String currentUserCloakroomKey = prefs.getString("currentUserCloakroomKey");
     setState(() {
       this._userCloakroomName = currentUserCloakroom;
-      this._userCloakroomKey = currentUserCloakroomKey;
       this._cloakroom = this._userCloakroomName;
     });
   }
