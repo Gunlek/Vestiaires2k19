@@ -55,7 +55,8 @@ class ParametersFormState extends State<ParametersForm> {
               )
             ]
           ),
-          Text('(prendra effet au redémarrage)')
+          Text('(prendra effet au redémarrage)'),
+          Text('Vestiaire par défaut')
         ]
       )
     );

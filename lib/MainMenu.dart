@@ -2,6 +2,7 @@ import 'package:app_vestiaires/MainDrawer.dart';
 import 'package:app_vestiaires/components/ViewCloakroom.dart';
 import 'package:flutter/material.dart';
 import 'package:mysql1/mysql1.dart' as mysql;
+import 'package:app_vestiaires/components/BelongingsAdder.dart';
 
 /*
   This is the class for the main menu
@@ -15,7 +16,21 @@ class MainMenu extends StatelessWidget {
       appBar: AppBar(
         title: Text('Vestiaire 2019 - Menu'),
         backgroundColor: Colors.green,
+          actions: <Widget>[
+            new IconButton(
+                icon: const Icon(Icons.refresh),
+                tooltip: 'Refresh',
+                onPressed: () {
+                  //TODO: refresh data;
+                }),
+          ]
       ),
+      floatingActionButton: FloatingActionButton(
+        child: Icon(Icons.add,),
+        onPressed: (){
+          Navigator.push(context, MaterialPageRoute(builder: (context) => BelongingsAdder()));
+        },
+    ),
       body: Menu(),
       drawer: Drawer(
         child: MainDrawer()
@@ -84,7 +99,7 @@ class MenuState extends State<MenuStateful> {
     }
   }
 
-  Widget _generateCloakroomButton(BuildContext context, String cloakroomKey, String cloakroomName, Color color){
+  Widget _generateCloakroomButton(BuildContext context, String cloakroomKey, String cloakroomName, Color color, String capacity){
     return Container(
         width: double.infinity,
         color: Colors.black12,
@@ -102,7 +117,8 @@ class MenuState extends State<MenuStateful> {
                       Navigator.push(context, MaterialPageRoute(builder: (context) => ViewCloakroom(cloakroomKey, cloakroomName, color)));
                     },
                   ),
-                  Text(cloakroomName, style: TextStyle(color: color))
+                  Text(cloakroomName, style: TextStyle(color: color)),
+                  Text(capacity, style: TextStyle(color: color)),
                 ]
             )
         )
@@ -130,14 +146,22 @@ class MenuState extends State<MenuStateful> {
     var results = await conn.query("SELECT cloakroom_name, cloakroom_key, cloakroom_color FROM cloakrooms");
     Map<dynamic, MaterialColor> cloakroomColor = new Map();
     Map<dynamic, dynamic> cloakroomMap = new Map();
+    Map<dynamic, dynamic> cloakroomCapacity = new Map();
+    //List<String> capacity;
     for(mysql.Row row in results){
       cloakroomMap.putIfAbsent(row[1].toString(), () => row[0].toString());
       cloakroomColor.putIfAbsent(row[1], () => this.colors[row[2]]);
+
+      //var results2 = await conn.query('SELECT COUNT(*) FROM belongings, cloakrooms JOIN ON cloakroom_key WHERE cloakroom_name = ?', []);
+      var results2 = await conn.query('SELECT COUNT(*) FROM belongings WHERE belongings_cloakroom = ?', [row[1]]);
+      print(results2);
+      cloakroomCapacity.putIfAbsent(row[1].toString(), () => results2.toString());
+
     }
 
     List<Widget> tempCloakroomsWidget = List();
     cloakroomMap.forEach((cloakroomKey, cloakroomName) {
-      tempCloakroomsWidget.add(_generateCloakroomButton(context, cloakroomKey, cloakroomName, cloakroomColor[cloakroomKey]));
+      tempCloakroomsWidget.add(_generateCloakroomButton(context, cloakroomKey, cloakroomName, cloakroomColor[cloakroomKey], cloakroomCapacity[cloakroomKey]));
     });
 
     this.setState((){
@@ -147,5 +171,7 @@ class MenuState extends State<MenuStateful> {
       this.progressActive = false;
     });
   }
+
+
 
 }
