@@ -1,5 +1,6 @@
 import 'package:app_vestiaires/components/BelongingsAdder.dart';
 import 'package:app_vestiaires/components/BelongingsGetter.dart';
+import 'package:app_vestiaires/components/ChangeCloakroom.dart';
 import 'package:app_vestiaires/components/Parameters.dart';
 import 'package:flutter/material.dart';
 
@@ -40,6 +41,12 @@ class MainDrawerState extends State<MainDrawer> {
                 }
             ),
             FlatButton(
+              child: Text("Changer de vestiaire"),
+              onPressed: () {
+                _openChangeCloakroom(context);
+              }
+            ),
+            FlatButton(
                 child: Text('Paramètres'),
                 onPressed: () {
                   _openParams(context);
@@ -51,15 +58,23 @@ class MainDrawerState extends State<MainDrawer> {
   }
 
   _openBelongingsAdder(context) {
+    Navigator.pop(context);
     Navigator.push(context, MaterialPageRoute(builder: (context) => BelongingsAdder()));
   }
 
   _openBelongingsGetter(context){
+    Navigator.pop(context);
     Navigator.push(context, MaterialPageRoute(builder: (context) => BelongingsGetter()));
   }
 
   _openParams(context){
+    Navigator.pop(context);
     Navigator.push(context, MaterialPageRoute(builder: (context) => Parameters()));
+  }
+
+  _openChangeCloakroom(context){
+    Navigator.pop(context);
+    Navigator.push(context, MaterialPageRoute(builder: (context) => ChangeCloakroom()));
   }
 
 }
