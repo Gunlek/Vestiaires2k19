@@ -102,6 +102,7 @@ class BelongingsAdderFormState extends State<BelongingsAdderForm> {
                         return Container(
                           width: double.infinity,
                             child: DropdownButton(
+                              isExpanded: true,
                               hint: new Text("Spécifiez un vestiaire"),
                               value: this._cloakroom,
                               onChanged: (value) {
@@ -160,7 +161,7 @@ class BelongingsAdderFormState extends State<BelongingsAdderForm> {
                                 db: 'vestiaires_2k19'
                             );
                             var conn = await mysql.MySqlConnection.connect(settings);
-                            var results = await conn.query("SELECT cloakroom_key FROM cloakrooms WHERE cloakroom_name = ?", [CloakroomController.text]);
+                            var results = await conn.query("SELECT cloakroom_key FROM cloakrooms WHERE cloakroom_name = ?", [this._cloakroom]);
                             if(results.length > 0){
                               var resultRow = results.elementAt(0);
                               String cloakroomKey = resultRow[0];
@@ -173,6 +174,14 @@ class BelongingsAdderFormState extends State<BelongingsAdderForm> {
                                 await conn.query('INSERT INTO belongings(belongings_type, belongings_cloakroom, belongings_number, belongings_location, belongings_info) VALUES(?, ?, ?, ?, ?)', [DescController.text, cloakroomKey, CodeController.text, LocationController.text, InfoController.text]);
                                 Scaffold.of(context).hideCurrentSnackBar();
                                 Scaffold.of(context).showSnackBar(SnackBar(content: Text('Objet ajouté'), backgroundColor: Colors.green));
+
+                                //clear on board data
+                                DescController.clear();
+                                CodeController.clear();
+                                LocationController.clear();
+                                InfoController.clear();
+
+                                //TODO: change focus to codecontroller (bar scaner
                               }
                             }
                             else {
