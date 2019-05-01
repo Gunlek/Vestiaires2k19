@@ -31,6 +31,7 @@ class BelongingsGetterForm extends StatefulWidget {
 class BelongingsGetterFormState extends State<BelongingsGetterForm> {
 
   final _formkey = GlobalKey<BelongingsGetterFormState>();
+  FocusNode codeFocusNode = FocusNode();
 
   TextEditingController CodeController = TextEditingController();
 
@@ -46,6 +47,7 @@ class BelongingsGetterFormState extends State<BelongingsGetterForm> {
             Text('Code:'),
             TextFormField(
                 keyboardType: TextInputType.number,
+                focusNode: codeFocusNode,
                 controller: CodeController,
                 validator: (value){
                   if(value.isEmpty)
@@ -103,7 +105,7 @@ class BelongingsGetterFormState extends State<BelongingsGetterForm> {
         rowList.add(el.toString());
       rowList.add(cloakroom.elementAt(0)[0]);
       FocusScope.of(context).requestFocus(new FocusNode());
-      Dialogs().information(context, rowList);
+      Dialogs().information(context, rowList, this.codeFocusNode);
       CodeController.clear();
     }
     else {
