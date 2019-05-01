@@ -27,13 +27,16 @@ class BelongingsAdderForm extends StatefulWidget {
 
 }
 
+enum ObjectType { Manteau, Sac }
+
 class BelongingsAdderFormState extends State<BelongingsAdderForm> {
 
   TextEditingController CodeController = new TextEditingController();
   TextEditingController LocationController = new TextEditingController();
-  TextEditingController DescController = new TextEditingController();
   TextEditingController CloakroomController = new TextEditingController();
   TextEditingController InfoController = new TextEditingController();
+
+  String _description = "Manteau";
 
   FocusNode codeFocusNode = FocusNode();
 
@@ -88,12 +91,35 @@ class BelongingsAdderFormState extends State<BelongingsAdderForm> {
                     Padding(padding: EdgeInsets.all(10.0)),
 
                     Text('Description de l\'objet:'),
-                    TextFormField(
-                      controller: DescController,
-                      validator: (value){
-                        if(value.isEmpty)
-                          return "Spécifiez une description valide";
-                      },
+                    Container(
+                      child: Row(
+                        children: <Widget>[
+                          Flexible(
+                            child: RadioListTile<String>(
+                              title: Text('Manteau'),
+                              value: "Manteau",
+                              groupValue: _description,
+                              onChanged: (String value) {
+                                setState(() {
+                                  _description = value;
+                                });
+                              }
+                            )
+                          ),
+                          Flexible(
+                              child: RadioListTile<String>(
+                                  title: Text('Sac'),
+                                  value: "Sac",
+                                  groupValue: _description,
+                                  onChanged: (String value) {
+                                    setState(() {
+                                      _description = value;
+                                    });
+                                  }
+                              )
+                          ),
+                        ]
+                      )
                     ),
 
                     Padding(padding: EdgeInsets.all(10.0)),
@@ -174,12 +200,12 @@ class BelongingsAdderFormState extends State<BelongingsAdderForm> {
                                 Scaffold.of(context).showSnackBar(SnackBar(content: Text('Emplacement déjà enregistré'), backgroundColor: Colors.red));
                               }
                               else {
-                                await conn.query('INSERT INTO belongings(belongings_type, belongings_cloakroom, belongings_number, belongings_location, belongings_info) VALUES(?, ?, ?, ?, ?)', [DescController.text, cloakroomKey, CodeController.text, LocationController.text, InfoController.text]);
+                                await conn.query('INSERT INTO belongings(belongings_type, belongings_cloakroom, belongings_number, belongings_location, belongings_info) VALUES(?, ?, ?, ?, ?)', [this._description, cloakroomKey, CodeController.text, LocationController.text, InfoController.text]);
                                 Scaffold.of(context).hideCurrentSnackBar();
                                 Scaffold.of(context).showSnackBar(SnackBar(content: Text('Objet ajouté'), backgroundColor: Colors.green));
 
                                 //clear on board data
-                                DescController.clear();
+                                this._description = "Manteau";
                                 CodeController.clear();
                                 LocationController.clear();
                                 InfoController.clear();
