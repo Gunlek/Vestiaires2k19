@@ -35,6 +35,8 @@ class BelongingsAdderFormState extends State<BelongingsAdderForm> {
   TextEditingController CloakroomController = new TextEditingController();
   TextEditingController InfoController = new TextEditingController();
 
+  FocusNode codeFocusNode = FocusNode();
+
   final _formKey = GlobalKey<FormState>();
 
   String _cloakroom;
@@ -61,6 +63,7 @@ class BelongingsAdderFormState extends State<BelongingsAdderForm> {
                   children: <Widget>[
                     Text('Code:'),
                     TextFormField(
+                      focusNode: this.codeFocusNode,
                       controller: this.CodeController,
                       keyboardType: TextInputType.number,
                       validator: (value){
@@ -181,7 +184,7 @@ class BelongingsAdderFormState extends State<BelongingsAdderForm> {
                                 LocationController.clear();
                                 InfoController.clear();
 
-                                //TODO: change focus to codecontroller (bar scaner
+                                FocusScope.of(context).requestFocus(this.codeFocusNode);
                               }
                             }
                             else {
