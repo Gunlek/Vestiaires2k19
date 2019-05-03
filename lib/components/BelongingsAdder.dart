@@ -194,13 +194,9 @@ class BelongingsAdderFormState extends State<BelongingsAdderForm> {
                             if(results.length > 0){
                               var resultRow = results.elementAt(0);
                               String cloakroomKey = resultRow[0];
-                              var checkIfOccupied = await conn.query('SELECT * FROM belongings WHERE belongings_cloakroom = ? AND belongings_location = ?', [cloakroomKey, LocationController.text]);
-                              if(checkIfOccupied.length > 0) {
-                                Scaffold.of(context).hideCurrentSnackBar();
-                                Scaffold.of(context).showSnackBar(SnackBar(content: Text('Emplacement déjà enregistré'), backgroundColor: Colors.red));
-                              }
-                              else {
-                                await conn.query('INSERT INTO belongings(belongings_type, belongings_cloakroom, belongings_number, belongings_location, belongings_info) VALUES(?, ?, ?, ?, ?)', [this._description, cloakroomKey, CodeController.text, LocationController.text, InfoController.text]);
+                              //var checkIfOccupied = await conn.query('SELECT * FROM belongings WHERE belongings_cloakroom = ? AND belongings_location = ?', [cloakroomKey, LocationController.text]);
+
+                              await conn.query('INSERT INTO belongings(belongings_type, belongings_cloakroom, belongings_number, belongings_location, belongings_info) VALUES(?, ?, ?, ?, ?)', [this._description, cloakroomKey, CodeController.text, LocationController.text, InfoController.text]);
                                 Scaffold.of(context).hideCurrentSnackBar();
                                 Scaffold.of(context).showSnackBar(SnackBar(content: Text('Objet ajouté'), backgroundColor: Colors.green));
 
@@ -211,7 +207,7 @@ class BelongingsAdderFormState extends State<BelongingsAdderForm> {
                                 InfoController.clear();
 
                                 FocusScope.of(context).requestFocus(this.codeFocusNode);
-                              }
+
                             }
                             else {
                               Scaffold.of(context).hideCurrentSnackBar();

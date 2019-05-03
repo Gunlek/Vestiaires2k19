@@ -107,6 +107,7 @@ class BelongingsGetterFormState extends State<BelongingsGetterForm> {
       FocusScope.of(context).requestFocus(new FocusNode());
       Dialogs().information(context, rowList, this.codeFocusNode);
       CodeController.clear();
+      Scaffold.of(context).hideCurrentSnackBar();
     }
     else {
       Scaffold.of(context).hideCurrentSnackBar();

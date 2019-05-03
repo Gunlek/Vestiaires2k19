@@ -3,11 +3,14 @@ import 'package:app_vestiaires/components/ViewCloakroom.dart';
 import 'package:flutter/material.dart';
 import 'package:mysql1/mysql1.dart' as mysql;
 import 'package:app_vestiaires/components/BelongingsAdder.dart';
+import 'package:app_vestiaires/components/BelongingsGetter.dart';
 
 /*
   This is the class for the main menu
   It handles cloakroom listing, providing a menu to access cloakrooms
  */
+GlobalKey<_MenuState> globalKey = GlobalKey();
+
 class MainMenu extends StatelessWidget {
 
   @override
@@ -21,17 +24,40 @@ class MainMenu extends StatelessWidget {
                 icon: const Icon(Icons.refresh),
                 tooltip: 'Refresh',
                 onPressed: () {
-                  //TODO: refresh data;
+                  globalKey.currentState._gatherCloakroomList();
                 }),
           ]
       ),
-      floatingActionButton: FloatingActionButton(
-        child: Icon(Icons.add,),
-        onPressed: (){
-          Navigator.push(context, MaterialPageRoute(builder: (context) => BelongingsAdder()));
-        },
-    ),
-      body: Menu(),
+      floatingActionButton:Container(
+        padding: EdgeInsets.only(left:30.0),
+        child: Stack(
+          children: <Widget>[
+            Align(
+              alignment: Alignment.bottomRight,
+              child: FloatingActionButton(
+                child: Icon(Icons.add, color: Colors.white,),
+                onPressed: (){
+                  Navigator.push(context, MaterialPageRoute(builder: (context) => BelongingsAdder()));
+                },
+                heroTag: null,
+                            ),
+            ),
+            Align(
+              alignment: Alignment.bottomLeft,
+              child: FloatingActionButton(
+                child: Icon(Icons.remove,color: Colors.white,),
+                onPressed: (){
+                    Navigator.push(context, MaterialPageRoute(builder: (context) => BelongingsGetter()));
+                  },
+
+              ),
+            )
+    ]
+        ),
+      ),
+
+
+      body: MenuStateful(key: globalKey),
       drawer: Drawer(
         child: MainDrawer()
       ),
@@ -40,26 +66,19 @@ class MainMenu extends StatelessWidget {
 
 }
 
-class Menu extends StatelessWidget {
 
-  @override
-  Widget build(BuildContext context) {
-    return MenuStateful();
-  }
-
-
-}
 
 class MenuStateful extends StatefulWidget {
 
+  MenuStateful({Key key}) : super(key: key);
+
   @override
-  State<StatefulWidget> createState() {
-    return MenuState();
-  }
+  _MenuState createState() => _MenuState();
+
 
 }
 
-class MenuState extends State<MenuStateful> {
+class _MenuState extends State<MenuStateful> {
 
   Map<dynamic, dynamic> cloakroomList = Map();
   Map<dynamic, MaterialColor> cloakroomColors = Map();
@@ -154,8 +173,9 @@ class MenuState extends State<MenuStateful> {
 
       //var results2 = await conn.query('SELECT COUNT(*) FROM belongings, cloakrooms JOIN ON cloakroom_key WHERE cloakroom_name = ?', []);
       var results2 = await conn.query('SELECT COUNT(*) FROM belongings WHERE belongings_cloakroom = ?', [row[1]]);
-      print(results2);
-      cloakroomCapacity.putIfAbsent(row[1].toString(), () => results2.toString());
+      List total = results2.toString().split("""[""");
+      String clearedText = total[1].split(''']''')[0];
+      cloakroomCapacity.putIfAbsent(row[1].toString(), () => clearedText);
 
     }
 

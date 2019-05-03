@@ -162,6 +162,7 @@ class BelongingsListingState extends State<BelongingsListing> {
       await conn.query('INSERT INTO logger(log_timestamp, log_info) VALUES(?, ?)', [DateTime.now().toString(), _currentUser + " from prom's " + _currentUserProms + " searched for belongings with id_tag: #" + code]);
       FocusScope.of(context).requestFocus(new FocusNode());
       Dialogs().information(context, rowList, null);
+      Scaffold.of(context).hideCurrentSnackBar();
     }
     else {
       Scaffold.of(context).hideCurrentSnackBar();
