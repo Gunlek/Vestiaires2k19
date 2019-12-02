@@ -113,6 +113,8 @@ class BelongingsGetterFormState extends State<BelongingsGetterForm> {
       Scaffold.of(context).hideCurrentSnackBar();
       Scaffold.of(context).showSnackBar(SnackBar(content: Text("Code inccnnu"), backgroundColor: Colors.red));
     }
+
+    await conn.close();
   }
 
 }

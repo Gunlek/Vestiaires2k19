@@ -119,6 +119,8 @@ class ChangeCloakroomState extends State<StatefulWidget> {
       cloakroomAssociation.putIfAbsent(row[1], () => row[0]);
     }
 
+    await conn.close();
+
     this.setState((){
       this._cloakroom = currentCloakroom;
       this.cloakroomAssociation = cloakroomAssociation;

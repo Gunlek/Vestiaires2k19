@@ -131,7 +131,8 @@ class Dialogs {
         db: 'vestiaires_2k19'
     );
     var conn = await mysql.MySqlConnection.connect(sqlSettings);
-    conn.query("DELETE FROM belongings WHERE belongings_id = ?", [belongingsId]);
+    await conn.query("DELETE FROM belongings WHERE belongings_id = ?", [belongingsId]);
+    await conn.close();
     Scaffold.of(context).hideCurrentSnackBar();
     Scaffold.of(context).showSnackBar(SnackBar(content: Text("Affaire récupérée..."), backgroundColor: Colors.green));
     Navigator.pop(context);

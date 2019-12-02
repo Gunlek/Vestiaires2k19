@@ -122,6 +122,7 @@ class LoginPageState extends State<LoginPageStateful> {
       cloakroomList.add(DropdownMenuItem(child: Text(row[0]), value: row[1]));
       cloakroomAssociation.putIfAbsent(row[1], () => row[0]);
     }
+    await conn.close();
 
     this.setState((){
       this.cloakroom = cloakroomList.length > 0 ? cloakroomList[0].value : null;

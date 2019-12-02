@@ -168,6 +168,8 @@ class BelongingsListingState extends State<BelongingsListing> {
       Scaffold.of(context).hideCurrentSnackBar();
       Scaffold.of(context).showSnackBar(SnackBar(content: Text("Code inccnnu"), backgroundColor: Colors.red));
     }
+
+    await conn.close();
   }
 
   _getCurrentUser() async {

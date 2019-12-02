@@ -239,6 +239,9 @@ class BelongingsAdderFormState extends State<BelongingsAdderForm> {
     for(mysql.Row row in results){
       tempCloakroomList.add(row[0]);
     }
+
+    await conn.close();
+
     setState((){
       this.cloakroomList = tempCloakroomList;
     });
