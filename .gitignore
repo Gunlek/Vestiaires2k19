@@ -72,4 +72,4 @@
 #key.properties file contains sensitive data
 **/android/key.properties
 
-.env
+.env*
