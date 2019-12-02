@@ -2,9 +2,9 @@ import 'package:app_vestiaires/login.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-void main() => runApp(MyApp());
+void main() => runApp(Vestiaires2k19());
 
-class MyApp extends StatelessWidget {
+class Vestiaires2k19 extends StatelessWidget {
 
   // This widget is the root of your application.
   @override
