@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:barcode_scan/barcode_scan.dart';
+import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
 import 'package:app_vestiaires/components/Dialogs.dart';
 import 'package:mysql1/mysql1.dart' as mysql;
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:app_vestiaires/utils/database_helper.dart';
 
 class BelongingsGetter extends StatelessWidget {
 
@@ -29,6 +29,8 @@ class BelongingsGetterForm extends StatefulWidget {
 }
 
 class BelongingsGetterFormState extends State<BelongingsGetterForm> {
+
+  DatabaseHelper db = DatabaseHelper();
 
   final _formkey = GlobalKey<BelongingsGetterFormState>();
   FocusNode codeFocusNode = FocusNode();
@@ -62,7 +64,11 @@ class BelongingsGetterFormState extends State<BelongingsGetterForm> {
               ),
               onPressed: (){
                 setState(() async {
-                  String _barcodeString = await BarcodeScanner.scan();
+                  String _barcodeString = await FlutterBarcodeScanner.scanBarcode(
+                      "#ff6666",
+                      "Cancel",
+                      true,
+                      ScanMode.BARCODE);
                   this.CodeController.text = _barcodeString;
                 });
               },
@@ -88,14 +94,7 @@ class BelongingsGetterFormState extends State<BelongingsGetterForm> {
 
   _gatherBelongingsData(String code) async {
     Scaffold.of(context).showSnackBar(SnackBar(content: Text("Recherche en cours")));
-    var sqlSettings = mysql.ConnectionSettings(
-      host: 'ftp.simple-duino.com',
-      port: 3306,
-      user: 'vestiaires_2k19',
-      password: 'emL3xC7jKCx7Nb5n',
-      db: 'vestiaires_2k19'
-    );
-    var conn = await mysql.MySqlConnection.connect(sqlSettings);
+    var conn = await db.database;
     var results = await conn.query('SELECT * FROM belongings WHERE belongings_number = ?', [code]);
     if(results.length > 0){
       var row = results.elementAt(0);
@@ -113,8 +112,6 @@ class BelongingsGetterFormState extends State<BelongingsGetterForm> {
       Scaffold.of(context).hideCurrentSnackBar();
       Scaffold.of(context).showSnackBar(SnackBar(content: Text("Code inccnnu"), backgroundColor: Colors.red));
     }
-
-    await conn.close();
   }
 
 }

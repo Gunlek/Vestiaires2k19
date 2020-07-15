@@ -2,6 +2,7 @@ import 'package:app_vestiaires/MainMenu.dart';
 import 'package:flutter/material.dart';
 import 'package:mysql1/mysql1.dart' as mysql;
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:app_vestiaires/utils/database_helper.dart';
 
 class LoginPage extends StatelessWidget {
 
@@ -22,6 +23,8 @@ class LoginPageStateful extends StatefulWidget {
 }
 
 class LoginPageState extends State<LoginPageStateful> {
+
+  DatabaseHelper db = DatabaseHelper();
 
   List<DropdownMenuItem> cloakroomName;
   Map<String, String> cloakroomAssociation;
@@ -107,14 +110,7 @@ class LoginPageState extends State<LoginPageStateful> {
 
   _gatherCloakroomList() async {
     this.progressActive = true;
-    var settings = new mysql.ConnectionSettings(
-        host: 'ftp.simple-duino.com',
-        port: 3306,
-        user: 'vestiaires_2k19',
-        password: 'emL3xC7jKCx7Nb5n',
-        db: 'vestiaires_2k19'
-    );
-    var conn = await mysql.MySqlConnection.connect(settings);
+    var conn = await db.database;
     var results = await conn.query("SELECT cloakroom_name, cloakroom_key, cloakroom_color FROM cloakrooms");
     List<DropdownMenuItem> cloakroomList = new List();
     Map<String, String> cloakroomAssociation = new Map();
@@ -122,7 +118,6 @@ class LoginPageState extends State<LoginPageStateful> {
       cloakroomList.add(DropdownMenuItem(child: Text(row[0]), value: row[1]));
       cloakroomAssociation.putIfAbsent(row[1], () => row[0]);
     }
-    await conn.close();
 
     this.setState((){
       this.cloakroom = cloakroomList.length > 0 ? cloakroomList[0].value : null;

@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:mysql1/mysql1.dart' as mysql;
 import 'package:app_vestiaires/components/BelongingsAdder.dart';
 import 'package:app_vestiaires/components/BelongingsGetter.dart';
+import 'package:app_vestiaires/utils/database_helper.dart';
 
 /*
   This is the class for the main menu
@@ -80,6 +81,8 @@ class MenuStateful extends StatefulWidget {
 
 class _MenuState extends State<MenuStateful> {
 
+  DatabaseHelper db = DatabaseHelper();
+
   Map<dynamic, dynamic> cloakroomList = Map();
   Map<dynamic, MaterialColor> cloakroomColors = Map();
   Map<String, MaterialColor> colors = Map();
@@ -154,14 +157,7 @@ class _MenuState extends State<MenuStateful> {
 
   _gatherCloakroomList() async {
     this.progressActive = true;
-    var settings = new mysql.ConnectionSettings(
-        host: 'ftp.simple-duino.com',
-        port: 3306,
-        user: 'vestiaires_2k19',
-        password: 'emL3xC7jKCx7Nb5n',
-        db: 'vestiaires_2k19'
-    );
-    var conn = await mysql.MySqlConnection.connect(settings);
+    var conn = await db.database;
     var results = await conn.query("SELECT cloakroom_name, cloakroom_key, cloakroom_color FROM cloakrooms");
     Map<dynamic, MaterialColor> cloakroomColor = new Map();
     Map<dynamic, dynamic> cloakroomMap = new Map();
@@ -173,8 +169,8 @@ class _MenuState extends State<MenuStateful> {
 
       //var results2 = await conn.query('SELECT COUNT(*) FROM belongings, cloakrooms JOIN ON cloakroom_key WHERE cloakroom_name = ?', []);
       var results2 = await conn.query('SELECT COUNT(*) FROM belongings WHERE belongings_cloakroom = ?', [row[1]]);
-      List total = results2.toString().split("""[""");
-      String clearedText = total[1].split(''']''')[0];
+      List total = results2.toString().split(""":""");
+      String clearedText = total[2].split('''}''')[0];
       cloakroomCapacity.putIfAbsent(row[1].toString(), () => clearedText);
 
     }

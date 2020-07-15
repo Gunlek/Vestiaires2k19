@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mysql1/mysql1.dart' as mysql;
+import 'package:app_vestiaires/utils/database_helper.dart';
 
 class Dialogs {
 
@@ -123,16 +124,9 @@ class Dialogs {
   _removeBelongingsFromDatabase(List<String> data, BuildContext context, FocusNode codeFocusNode) async {
     Scaffold.of(context).showSnackBar(SnackBar(content: Text("Récupération en cours...")));
     int belongingsId = int.tryParse(data[0]);
-    var sqlSettings = mysql.ConnectionSettings(
-        host: 'ftp.simple-duino.com',
-        port: 3306,
-        user: 'vestiaires_2k19',
-        password: 'emL3xC7jKCx7Nb5n',
-        db: 'vestiaires_2k19'
-    );
-    var conn = await mysql.MySqlConnection.connect(sqlSettings);
-    await conn.query("DELETE FROM belongings WHERE belongings_id = ?", [belongingsId]);
-    await conn.close();
+    DatabaseHelper db = DatabaseHelper();
+    var conn = await db.database;
+    conn.query("DELETE FROM belongings WHERE belongings_id = ?", [belongingsId]);
     Scaffold.of(context).hideCurrentSnackBar();
     Scaffold.of(context).showSnackBar(SnackBar(content: Text("Affaire récupérée..."), backgroundColor: Colors.green));
     Navigator.pop(context);

@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:barcode_scan/barcode_scan.dart';
+import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
 import 'package:mysql1/mysql1.dart' as mysql;
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:app_vestiaires/utils/database_helper.dart';
 
 class BelongingsAdder extends StatelessWidget {
 
@@ -30,6 +31,8 @@ class BelongingsAdderForm extends StatefulWidget {
 enum ObjectType { Manteau, Sac }
 
 class BelongingsAdderFormState extends State<BelongingsAdderForm> {
+
+  DatabaseHelper db = DatabaseHelper();
 
   TextEditingController CodeController = new TextEditingController();
   TextEditingController LocationController = new TextEditingController();
@@ -82,7 +85,11 @@ class BelongingsAdderFormState extends State<BelongingsAdderForm> {
                       ),
                       onPressed: (){
                         setState(() async {
-                          String _barcodeString = await BarcodeScanner.scan();
+                          String _barcodeString = await FlutterBarcodeScanner.scanBarcode(
+                              "#ff6666",
+                              "Cancel",
+                              true,
+                              ScanMode.BARCODE);
                           this.CodeController.text = _barcodeString;
                         });
                       },
@@ -182,14 +189,7 @@ class BelongingsAdderFormState extends State<BelongingsAdderForm> {
                         onPressed: () async {
                           if(_formKey.currentState.validate()){
                             Scaffold.of(context).showSnackBar(SnackBar(content: Text('Ajout en cours...')));
-                            var settings = new mysql.ConnectionSettings(
-                                host: 'ftp.simple-duino.com',
-                                port: 3306,
-                                user: 'vestiaires_2k19',
-                                password: 'emL3xC7jKCx7Nb5n',
-                                db: 'vestiaires_2k19'
-                            );
-                            var conn = await mysql.MySqlConnection.connect(settings);
+                            var conn = await db.database;
                             var results = await conn.query("SELECT cloakroom_key FROM cloakrooms WHERE cloakroom_name = ?", [this._cloakroom]);
                             if(results.length > 0){
                               var resultRow = results.elementAt(0);
@@ -226,22 +226,12 @@ class BelongingsAdderFormState extends State<BelongingsAdderForm> {
   }
 
   Future<String> _getCloakroomList() async {
-    var settings = new mysql.ConnectionSettings(
-        host: 'ftp.simple-duino.com',
-        port: 3306,
-        user: 'vestiaires_2k19',
-        password: 'emL3xC7jKCx7Nb5n',
-        db: 'vestiaires_2k19'
-    );
-    var conn = await mysql.MySqlConnection.connect(settings);
+    var conn = await db.database;
     var results = await conn.query("SELECT cloakroom_name FROM cloakrooms");
     List<String> tempCloakroomList = List();
     for(mysql.Row row in results){
       tempCloakroomList.add(row[0]);
     }
-
-    await conn.close();
-
     setState((){
       this.cloakroomList = tempCloakroomList;
     });

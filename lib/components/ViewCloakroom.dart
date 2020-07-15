@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:mysql1/mysql1.dart' as mysql;
 import 'package:app_vestiaires/components/Dialogs.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:app_vestiaires/utils/database_helper.dart';
 
 enum Cloakroom {RED, GREEN, BLUE, YELLOW}
 
@@ -48,6 +49,8 @@ class BelongingsListing extends StatefulWidget {
 
 class BelongingsListingState extends State<BelongingsListing> {
 
+  DatabaseHelper db = DatabaseHelper();
+
   List<String> belongings;
   String cloakroomKey;
   bool progressActive = true;
@@ -73,14 +76,7 @@ class BelongingsListingState extends State<BelongingsListing> {
   Future<String> _getBelongings() async {
     this.progressActive = true;
     List<String> currentBelongings = new List();
-    var settings = new mysql.ConnectionSettings(
-        host: '91.121.135.77',
-        port: 3306,
-        user: 'vestiaires_2k19',
-        password: 'emL3xC7jKCx7Nb5n',
-        db: 'vestiaires_2k19'
-    );
-    var conn = await mysql.MySqlConnection.connect(settings);
+    var conn = await db.database;
     var results = await conn.query("SELECT * FROM belongings INNER JOIN cloakrooms ON belongings.belongings_cloakroom = cloakrooms.cloakroom_key WHERE cloakrooms.cloakroom_key=? ORDER BY belongings_number", [this.cloakroomKey]);
     for(var row in results){
       String rowStr = row[3]; // belongings_number
@@ -141,14 +137,7 @@ class BelongingsListingState extends State<BelongingsListing> {
 
   _gatherBelongingsData(String code) async {
     Scaffold.of(context).showSnackBar(SnackBar(content: Text("Recherche en cours")));
-    var sqlSettings = mysql.ConnectionSettings(
-        host: 'ftp.simple-duino.com',
-        port: 3306,
-        user: 'vestiaires_2k19',
-        password: 'emL3xC7jKCx7Nb5n',
-        db: 'vestiaires_2k19'
-    );
-    var conn = await mysql.MySqlConnection.connect(sqlSettings);
+    var conn = await db.database;
     var results = await conn.query('SELECT * FROM belongings WHERE belongings_number = ?', [code]);
     if(results.length > 0){
       var row = results.elementAt(0);
@@ -157,9 +146,10 @@ class BelongingsListingState extends State<BelongingsListing> {
       for(var el in row)
         rowList.add(el.toString());
       rowList.add(cloakroom.elementAt(0)[0]);
-      rowList.add(_currentUser);
-      rowList.add(_currentUserProms);
-      await conn.query('INSERT INTO logger(log_timestamp, log_info) VALUES(?, ?)', [DateTime.now().toString(), _currentUser + " from prom's " + _currentUserProms + " searched for belongings with id_tag: #" + code]);
+      //rowList.add(_currentUser);
+      //rowList.add(_currentUserProms);
+      print(_currentUser.toString() + _currentUserProms.toString());
+      await conn.query('INSERT INTO logger(log_timestamp, log_info) VALUES(?, ?)', [DateTime.now().toString(), " an user" + " searched for belongings with id_tag: #" + code]);
       FocusScope.of(context).requestFocus(new FocusNode());
       Dialogs().information(context, rowList, null);
       Scaffold.of(context).hideCurrentSnackBar();
@@ -168,8 +158,6 @@ class BelongingsListingState extends State<BelongingsListing> {
       Scaffold.of(context).hideCurrentSnackBar();
       Scaffold.of(context).showSnackBar(SnackBar(content: Text("Code inccnnu"), backgroundColor: Colors.red));
     }
-
-    await conn.close();
   }
 
   _getCurrentUser() async {
